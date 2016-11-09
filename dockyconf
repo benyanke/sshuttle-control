@@ -1,0 +1,92 @@
+#!/bin/bash
+
+#########################
+#
+# DockyConf
+#
+# A docky control script written by Ben Yanke
+# https://github.com/benyanke
+#
+#########################
+
+function restartDocky() {
+    killall "docky"
+    docky &>/dev/null &
+}
+
+
+	# Move dock to a different display
+	if [[ $1 = "movemon" ]]; then
+		if [[ $2 = "" ]] || [[ $3 = "" ]]; then
+			echo "Need to specify a dock and display number.";
+			exit 1;
+		fi
+
+		dockNumb=$2
+		displayNumb=$3
+
+		settingPath="/apps/docky-2/Docky/Interface/DockPreferences/Dock$dockNumb/MonitorNumber"
+		settingVal=$displayNumb
+		settingValType="int"
+
+		gconftool-2 --set "$settingPath" --type $settingValType "$settingVal"
+
+		restartDocky
+		exit 0;
+
+	# Move dock to different location on the same display
+	elif [[ $1 = "movepos" ]]; then
+		if [[ $2 = "" ]] || [[ $3 = "" ]]; then
+			echo "Need to specify a dock and a location";
+			exit 1;
+		fi
+		# WORK ON THIS MORE
+		dockNumb=$2
+		displayNumb=$3
+
+		settingPath="/apps/docky-2/Docky/Interface/DockPreferences/Dock$dockNumb/MonitorNumber"
+		settingVal=$displayNumb
+		settingValType="int"
+
+		gconftool-2 --set "$settingPath" --type $settingValType "$settingVal"
+
+		restartDocky
+		exit 0;
+
+	# Enable/disable icon drag locking
+	elif [[ $1 = "lock" ]]; then
+		if [[ $2 = "" ]]; then
+			echo "Need to specify a setting [0 = unlock / 1 = lock].";
+			exit 1;
+		elif [[ $2 -ne "0" ]] && [[ $2 -ne "1" ]]; then
+			echo "Please specify either 0 or 1.";
+			exit 1;
+		fi
+
+		lockDrag=$2
+
+		settingPath="/apps/docky-2/Docky/Interface/DockDragTracker/LockDrags"
+		settingVal=$lockDrag
+		settingValType="bool"
+
+		gconftool-2 --set "$settingPath" --type $settingValType "$settingVal"
+
+		restartDocky
+		exit 0;
+
+	else
+		echo -e "#########\nDockyConf\n#########\n";
+		echo -e "Settings which can be changed:\n";
+
+		echo -e "* Change dock monitor:";
+		echo -e "\tdockyconf movemon [dock #] [monitor #]\n\n";
+
+		echo -e "* Change dock location on the monitor:";
+		echo -e "\tdockyconf movepos [dock #] [monitor #]\n\n";
+
+		echo -e "* Lock icons from dragging:";
+		echo -e "\tdockyconf lock [0 = don't lock | 1 = lock]\n\n";
+
+		exit 0;
+	fi
+
