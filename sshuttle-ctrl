@@ -3,17 +3,19 @@
 # set the default server which is used
 defaulthost=home
 
+
 cmd=$1
 action=$2
 host=$3
 
 if [[ $host = "" ]]; then
+	echo "Using default host: $defaulthost"
 	host=$defaulthost
 fi
 
 pidfile=/tmp/sshuttle-ctrl/$cmd-$host.pid
 mkdir /tmp/sshuttle-ctrl -p
-touch $pidfile;
+# touch $pidfile;
 
 # alias tunnel='sshuttle -D --pidfile=/tmp/sshuttle.pid -r <server> --dns 0/0'
 # alias stoptunnel='[[ -f /tmp/sshuttle.pid ]] && kill `cat /tmp/sshuttle.pid`'
@@ -27,27 +29,31 @@ touch $pidfile;
 			echo "Action not specified"
 			echo -e "(start|stop|list)\n"
 			exit 1;
-		fi
+		fi # end blank action check
 
 		if  [[ $action != "start" ]] &&  [[ $action != "stop" ]] &&  [[ $action != "list" ]]; then
 			echo "Invalid action"
 			echo -e "(start|stop|list)\n"
 			exit 1;
-		fi
+		fi # end valid action check
 
 		if  [[ $action == "start" ]]; then
+			printf "Starting...\n"
 			sudo -u $USER sshuttle --dns -D --pidfile=$pidfile -r $host 0/0
 			exit 0;
-		fi
+		fi # end start check
 
 		if  [[ $action == "stop" ]]; then
-			printf "Not yet implemented! Stop it manually please. Pid is "
-			cat $pidfile;
-			printf "\n"
-
-			
-			exit 0;
-		fi
+			printf "Stopping...\n";
+			if [[ -f $pidfile ]]; then
+				sudo kill `cat $pidfile`;
+				rm $pidfile -f
+				exit 0;
+			else
+				printf "This tunnel does not appear to be running.\n";
+				exit 1;
+			fi # end pid file existence check
+		fi # End stop handler
 
 
 
