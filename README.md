@@ -16,3 +16,10 @@ sshuttle-ctrl tnl stop SSHHOST
 sshuttle-ctrl tnl list
 
 ```
+
+
+Other future features include:
+ * lan command - tunnel only lan traffic to host, not all traffic
+   * For when you have a slow WAN connection on the remote host, so you don't want to send non-important traffic over that link
+ * tnlbut command - same as tunnel, but excluding some subnet
+   * For when you want to tunnel all your traffic to a remote host, but still need to access local resources on your local LAN
